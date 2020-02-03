@@ -57,15 +57,15 @@ jobs:
 
             duration=10
 
-            echo "will stream UDP event to server for $duration seconds"
+            echo "will stream UDP event to server for ${duration} seconds"
 
             spawn_producer() {
-              (./dev/event-producer.sh &> /dev/null) & sleep $duration
+              (EACH=.0001 ./dev/event-producer.sh &> /dev/null) & sleep ${duration}
               kill $! &> /dev/null || :
             }
 
             spawn_server() {
-              (/app/server &> log.txt) & sleep $(( $duration + 2 ))
+              (/app/server &> log.txt) & sleep $(( ${duration} + 2 ))
               kill $! &> /dev/null || :
             }
 
