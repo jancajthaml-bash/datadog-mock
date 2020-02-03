@@ -72,7 +72,7 @@ jobs:
             calculate_results() {
               lines=$(wc -l log.txt | awk '{print $1}')
               average=$(($lines / $duration))
-              accepted_throughput=8000
+              accepted_throughput=2000
               if [ "${average}" -lt "${accepted_throughput}" ] ; then
                 echo "did not met throughput (/s) criterial with only ${average} out of acceptable ${accepted_throughput}"
                 exit 1
