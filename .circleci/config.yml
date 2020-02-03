@@ -158,9 +158,10 @@ workflows:
   validate_and_publish:
     jobs:
       - test
-      - deploy:
-          requires:
-            - test
       - performance:
           requires:
+            - test
+      - deploy:
+          requires:
+            - performance
             - test
