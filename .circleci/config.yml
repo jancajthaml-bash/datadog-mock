@@ -14,10 +14,7 @@ jobs:
       - run:
           name: Sync dependencies
           command: |
-            go get -u github.com/kardianos/govendor \
-                      golang.org/x/tools/cmd/cover \
-                      github.com/mattn/goveralls
-            govendor sync -v
+            go get -u golang.org/x/tools/cmd/cover github.com/mattn/goveralls
 
       - run:
           name: Run tests
