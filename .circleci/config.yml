@@ -23,7 +23,7 @@ jobs:
           command: |
             cd /go/src/jancajthaml/src/datadog-mock
             : > /go/src/jancajthaml/coverage.txt
-            go test -v -cover -race -coverprofile=/go/src/jancajthaml/coverage.txt -covermode=atomic ./...
+            go test -v -cover -coverprofile=/go/src/jancajthaml/coverage.txt -covermode=atomic ./...
             goveralls -coverprofile=/go/src/jancajthaml/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
       - run:
           name: Build server
