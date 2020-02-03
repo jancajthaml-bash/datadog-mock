@@ -11,7 +11,7 @@ jobs:
           - GOOS: linux
           - GOARCH: amd64
 
-    working_directory: /opt/project
+    working_directory: /go/src/jancajthaml
     steps:
       - checkout
       - run:
@@ -21,7 +21,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-<<<<<<< HEAD
             cd /go/src/jancajthaml/src/datadog-mock
             : > /go/src/jancajthaml/coverage.txt
             go test -v -cover -coverprofile=/go/src/jancajthaml/coverage.txt -covermode=atomic ./...
@@ -36,24 +35,6 @@ jobs:
             go build -a -o /go/src/jancajthaml/pkg/datadog_mock
       - persist_to_workspace:
           root: /go/src/jancajthaml
-=======
-            cd /opt/project/src/datadog-mock
-            : > /opt/project/coverage.txt
-            CGO_ENABLED=0 go test -v -cover -race -coverprofile=/opt/project/coverage.txt -covermode=atomic ./...
-            goveralls -coverprofile=/opt/project/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
-
-      - run:
-          name: Build server
-          command: |
-            cd /opt/project/src/datadog-mock
-            GO111MODULE=on go mod verify
-            GO111MODULE=on go mod tidy
-            GO111MODULE=on go mod vendor
-            CGO_ENABLED=0 GOOS=linux go build -a -o /opt/project/pkg/datadog_mock
-
-      - persist_to_workspace:
-          root: /opt/project
->>>>>>> migrated to go modules
           paths:
             - pkg/datadog_mock
 
@@ -67,21 +48,12 @@ jobs:
     working_directory: /app
     steps:
       - attach_workspace:
-<<<<<<< HEAD
           at: /go/src/jancajthaml
-=======
-          at: /opt/project
-
->>>>>>> migrated to go modules
       - checkout
       - run:
           name: Start perf tests
           command: |
-<<<<<<< HEAD
             cp -r /go/src/jancajthaml/pkg/datadog_mock /app/server
-=======
-            cp -r /opt/project/pkg/datadog_mock /app/server
->>>>>>> migrated to go modules
 
             duration=10
 
@@ -127,12 +99,7 @@ jobs:
     working_directory: /app
     steps:
       - attach_workspace:
-<<<<<<< HEAD
           at: /go/src/jancajthaml
-=======
-          at: /opt/project
-
->>>>>>> migrated to go modules
       - checkout
       - setup_remote_docker
       - run:
@@ -142,11 +109,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-<<<<<<< HEAD
             cp -r /go/src/jancajthaml/pkg /app/pkg
-=======
-            cp -r /opt/project/pkg /app/target
->>>>>>> migrated to go modules
             docker build \
               --build-arg VERSION=$(git tag | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$" | sort -t. -k 1,1n -k 2,2n -k 3,3n | tail -1) \
               --build-arg SOURCE=$(git config --get remote.origin.url) \
