@@ -11,7 +11,7 @@ jobs:
           - GOOS: linux
           - GOARCH: amd64
 
-    working_directory: /opt/project
+    working_directory: /go/src/jancajthaml
     steps:
       - checkout
       - run:
@@ -21,20 +21,20 @@ jobs:
       - run:
           name: Run tests
           command: |
-            cd /opt/project/src/datadog-mock
-            : > /opt/project/coverage.txt
-            go test -v -cover -race -coverprofile=/opt/project/coverage.txt -covermode=atomic ./...
-            goveralls -coverprofile=/opt/project/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
+            cd /go/src/jancajthaml/src/datadog-mock
+            : > /go/src/jancajthaml/coverage.txt
+            go test -v -cover -race -coverprofile=/go/src/jancajthaml/coverage.txt -covermode=atomic ./...
+            goveralls -coverprofile=/go/src/jancajthaml/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
       - run:
           name: Build server
           command: |
-            cd /opt/project/src/datadog-mock
+            cd /go/src/jancajthaml/src/datadog-mock
             go mod verify
             go mod tidy
             go mod vendor
-            go build -a -o /opt/project/pkg/datadog_mock
+            go build -a -o /go/src/jancajthaml/pkg/datadog_mock
       - persist_to_workspace:
-          root: /opt/project
+          root: /go/src/jancajthaml
           paths:
             - pkg/datadog_mock
 
@@ -48,12 +48,12 @@ jobs:
     working_directory: /app
     steps:
       - attach_workspace:
-          at: /opt/project
+          at: /go/src/jancajthaml
       - checkout
       - run:
           name: Start perf tests
           command: |
-            cp -r /opt/project/pkg/datadog_mock /app/server
+            cp -r /go/src/jancajthaml/pkg/datadog_mock /app/server
 
             duration=10
 
@@ -92,7 +92,7 @@ jobs:
     working_directory: /app
     steps:
       - attach_workspace:
-          at: /opt/project
+          at: /go/src/jancajthaml
       - checkout
       - setup_remote_docker
       - run:
@@ -102,7 +102,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            cp -r /opt/project/pkg /app/target
+            cp -r /go/src/jancajthaml/pkg /app/target
             docker build \
               --build-arg VERSION=$(git tag | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$" | sort -t. -k 1,1n -k 2,2n -k 3,3n | tail -1) \
               --build-arg SOURCE=$(git config --get remote.origin.url) \
