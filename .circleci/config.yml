@@ -3,11 +3,11 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.13
         environment:
           - LANG: C.UTF-8
 
-    working_directory: /go/src/jancajthaml
+    working_directory: /opt/project
     steps:
       - checkout
 
@@ -22,22 +22,24 @@ jobs:
       - run:
           name: Run tests
           command: |
-            cd /go/src/jancajthaml/src/datadog-mock
-            : > /go/src/jancajthaml/coverage.txt
-            go test -v -cover -race -coverprofile=/go/src/jancajthaml/coverage.txt -covermode=atomic ./...
-            goveralls -coverprofile=/go/src/jancajthaml/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
+            cd /opt/project/src/datadog-mock
+            : > /opt/project/coverage.txt
+            CGO_ENABLED=0 go test -v -cover -race -coverprofile=/opt/project/coverage.txt -covermode=atomic ./...
+            goveralls -coverprofile=/opt/project/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
 
       - run:
           name: Build server
           command: |
-            cd /go/src/jancajthaml/src/datadog-mock
-            go clean
-            CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/src/github.com/jancajthaml/target/datadog_mock
+            cd /opt/project/src/datadog-mock
+            GO111MODULE=on go mod verify
+            GO111MODULE=on go mod tidy
+            GO111MODULE=on go mod vendor
+            CGO_ENABLED=0 GOOS=linux go build -a -o /opt/project/pkg/datadog_mock
 
-      - persist_to_workspace: 
-          root: /go/src/github.com/jancajthaml
+      - persist_to_workspace:
+          root: /opt/project
           paths:
-            - target/datadog_mock
+            - pkg/datadog_mock
 
   performance:
     docker:
@@ -50,14 +52,14 @@ jobs:
     working_directory: /app
     steps:
       - attach_workspace:
-          at: /go/src/github.com/jancajthaml
+          at: /opt/project
 
       - checkout
 
       - run:
           name: Start perf tests
           command: |
-            cp -r /go/src/github.com/jancajthaml/target/datadog_mock /app/server
+            cp -r /opt/project/pkg/datadog_mock /app/server
 
             duration=10
 
@@ -96,7 +98,7 @@ jobs:
     working_directory: /app
     steps:
       - attach_workspace:
-          at: /go/src/github.com/jancajthaml
+          at: /opt/project
 
       - checkout
       - setup_remote_docker
@@ -109,7 +111,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            cp -r /go/src/github.com/jancajthaml/target /app/target
+            cp -r /opt/project/pkg /app/target
             docker build \
               --build-arg VERSION=$(git tag | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$" | sort -t. -k 1,1n -k 2,2n -k 3,3n | tail -1) \
               --build-arg SOURCE=$(git config --get remote.origin.url) \
