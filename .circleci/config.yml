@@ -6,33 +6,33 @@ jobs:
       - image: circleci/golang:1.13
         environment:
           - LANG: C.UTF-8
+          - CGO_ENABLED: 0
+          - GO111MODULE: "on"
+          - GOOS: linux
+          - GOARCH: amd64
 
     working_directory: /opt/project
     steps:
       - checkout
-
       - run:
           name: Sync dependencies
           command: |
             go get -u golang.org/x/tools/cmd/cover github.com/mattn/goveralls
-
       - run:
           name: Run tests
           command: |
             cd /opt/project/src/datadog-mock
             : > /opt/project/coverage.txt
-            CGO_ENABLED=0 go test -v -cover -race -coverprofile=/opt/project/coverage.txt -covermode=atomic ./...
+            go test -v -cover -race -coverprofile=/opt/project/coverage.txt -covermode=atomic ./...
             goveralls -coverprofile=/opt/project/coverage.txt -service=circle-ci -repotoken=$COVERALLS_TOKEN
-
       - run:
           name: Build server
           command: |
             cd /opt/project/src/datadog-mock
-            GO111MODULE=on go mod verify
-            GO111MODULE=on go mod tidy
-            GO111MODULE=on go mod vendor
-            CGO_ENABLED=0 GOOS=linux go build -a -o /opt/project/pkg/datadog_mock
-
+            go mod verify
+            go mod tidy
+            go mod vendor
+            go build -a -o /opt/project/pkg/datadog_mock
       - persist_to_workspace:
           root: /opt/project
           paths:
