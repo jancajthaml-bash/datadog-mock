@@ -150,7 +150,7 @@ jobs:
       - deploy:
           name: Lazily update docker badge
           command: |
-            if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
+            if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$" ; then
               curl -X POST https://hooks.microbadger.com/images/jancajthaml/datadog_mock/${MICROBADGER_TOKEN}
             fi
 
