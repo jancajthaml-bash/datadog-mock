@@ -15,25 +15,51 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"net"
 	"os"
+	"os/signal"
+	"sync"
 )
 
 func main() {
-	fmt.Println("Starting DataDog Mock Server")
+	fmt.Println("Start")
 
-	stream, err := net.ResolveUDPAddr("udp", ":8125")
+	ctx, cancel := context.WithCancel(context.Background())
+	event := make(chan []byte)
 
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	var wg sync.WaitGroup
 
-	relay := NewSink()
-	go relay.Run(stream)
+	sink := NewSink(event)
+	processor := NewProcessor(event)
 
-	for {
-		go processEvent(<-relay.event)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		processor.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sink.Run(ctx)
+	}()
+
+	cancelSignal := make(chan os.Signal, 1)
+	signal.Notify(cancelSignal, os.Interrupt)
+	defer func() {
+		signal.Stop(cancelSignal)
+		cancel()
+	}()
+
+	go func() {
+		select {
+		case <-cancelSignal:
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
+
+	wg.Wait()
+	fmt.Println("Stop")
 }
