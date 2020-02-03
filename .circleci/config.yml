@@ -45,14 +45,11 @@ jobs:
           - LANG: C.UTF-8
           - MESSAGE: "deploys.test.myservice:1|c"
           - EACH: ".0001"
-
     working_directory: /app
     steps:
       - attach_workspace:
           at: /opt/project
-
       - checkout
-
       - run:
           name: Start perf tests
           command: |
@@ -96,15 +93,12 @@ jobs:
     steps:
       - attach_workspace:
           at: /opt/project
-
       - checkout
       - setup_remote_docker
-
       - run:
           name: Install Dependencies
           command: |
             apk --no-cache add curl
-
       - run:
           name: Build application Docker image
           command: |
@@ -113,7 +107,6 @@ jobs:
               --build-arg VERSION=$(git tag | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$" | sort -t. -k 1,1n -k 2,2n -k 3,3n | tail -1) \
               --build-arg SOURCE=$(git config --get remote.origin.url) \
               -t bundle .
-
       - deploy:
           name: Push image to DockerHUB
           command: |
