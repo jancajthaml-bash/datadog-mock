@@ -83,9 +83,10 @@ jobs:
 
             trap 'exit 0' INT TERM
 
-            for i in $(seq 1 8); do
+            for i in $(seq 1 8) ; do
               spawn_producer &
             done
+            \
             spawn_server &&
             calculate_results
 
