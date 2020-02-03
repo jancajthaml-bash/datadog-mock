@@ -60,7 +60,7 @@ jobs:
             echo "will stream UDP event to server for ${duration} seconds"
 
             spawn_producer() {
-              (EACH=.0001 ./dev/event-producer.sh &> /dev/null) & sleep ${duration}
+              (./dev/event-producer.sh &> /dev/null) & sleep ${duration}
               kill $! &> /dev/null || :
             }
 
