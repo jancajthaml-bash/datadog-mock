@@ -22,11 +22,13 @@ import (
 	"sync"
 )
 
+const Parallelism = 8
+
 func main() {
 	fmt.Println("Start")
 
 	ctx, cancel := context.WithCancel(context.Background())
-	event := make(chan []byte)
+	event := make(chan []byte, Parallelism)
 
 	var wg sync.WaitGroup
 

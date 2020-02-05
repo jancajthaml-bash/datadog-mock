@@ -78,7 +78,9 @@ func (r *Sink) Run(ctx context.Context) {
 	fmt.Println("Sink Start")
 	defer fmt.Println("Sink Stop")
 
-	go r.ReadFromUDP(conn)
+	for i := 1; i < Parallelism; i++ {
+		go r.ReadFromUDP(conn)
+	}
 
 	<-ctx.Done()
 }

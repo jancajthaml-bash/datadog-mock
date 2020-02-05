@@ -50,7 +50,9 @@ func (r *Processor) ProcessEvents() {
 func (r *Processor) Run(ctx context.Context) {
 	fmt.Println("Processor Start")
 	defer fmt.Println("Processor Stop")
-	go r.ProcessEvents()
+	for i := 1; i < Parallelism; i++ {
+		go r.ProcessEvents()
+	}
 
 	<-ctx.Done()
 }
