@@ -16,17 +16,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"sync"
 )
 
-const Parallelism = 8
-
 func main() {
-	fmt.Println("Start")
-
 	ctx, cancel := context.WithCancel(context.Background())
 	event := make(chan []byte, Parallelism)
 
@@ -63,5 +58,4 @@ func main() {
 	}()
 
 	wg.Wait()
-	fmt.Println("Stop")
 }
