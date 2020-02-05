@@ -23,7 +23,7 @@ import (
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	event := make(chan []byte, Parallelism)
+	event := make(chan []byte)
 
 	var wg sync.WaitGroup
 
